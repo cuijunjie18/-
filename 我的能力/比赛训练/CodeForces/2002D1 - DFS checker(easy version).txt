@@ -1,0 +1,116 @@
+#include<bits/stdc++.h>
+#define lowbit(x) (x&(-x))
+#define rep(x,a,b) for(int x=a;x<=b;x++)
+#define pre(x,a,b) for(int x=a;x>=b;x--)
+#define ac puts("Yes")
+#define wa puts("No")
+#define int long long
+#define endl "\n"
+#define pb push_back
+#define pii pair<int, int>
+#define de cout<<1;
+#define mem(a,x) memset(a,x,sizeof a)
+#define IOS ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+#define ull unsigned long long
+#define eps 1e-6
+#define RI register int
+#define CI const int&
+using namespace std;
+const int mod=998244353;
+const int N = 1e6 + 20;
+int n, m;
+vector<int>p[N];
+int a[N], depth[N], f[N];
+set<int>id[20];
+void dfs(int u, int fa)
+{
+	f[u] = fa;
+	depth[u] = depth[fa] + 1;
+	for(auto j : p[u])
+	{
+		if(j == fa) continue;
+		dfs(j, u);
+	}
+}
+void g(int l, int r, int cnt)
+{
+	id[cnt].insert(l);
+	// cout<<cnt<<" "<<l<<endl;
+	if(l == r) return;
+	int len = r - l;
+	len /= 2;
+	g(l + 1, l + len, cnt + 1);
+	g(l + len + 1, r, cnt + 1);
+}
+set<int>mp;
+int now[N];
+bool check(int x)
+{
+	if(id[depth[a[x]]].find(x) == id[depth[a[x]]].end()) return true;
+	if(f[a[x]] && now[f[a[x]]] > x) return true;
+	return false;
+}
+void solve()
+{
+	mp.clear();
+	cin >> n >> m;
+	rep(i, 1, n) p[i].clear();
+	rep(i, 0, 19) id[i].clear();
+	rep(i, 2, n)
+	{
+		int x;
+		cin >> x;
+		p[i].push_back(x);
+		p[x].push_back(i);
+	}
+	rep(i, 1, n) cin >> a[i], now[a[i]] = i;
+	g(1, n, 1);
+	dfs(1, 0);
+	rep(i, 1, n)
+	{
+		if(check(i)) mp.insert(i);
+	}
+	// cout<<mp.size();
+	while(m -- )
+	{
+		int x, y;
+		cin >> x >> y;
+		swap(now[a[x]], now[a[y]]);
+		swap(a[x], a[y]);
+		if(check(x)) mp.insert(x);
+		else mp.erase(x);
+		if(check(y)) mp.insert(y);
+		else mp.erase(y);
+		if(f[a[x]] && check(now[f[a[x]]])) mp.insert(now[f[a[x]]]);
+		else mp.erase(now[f[a[x]]]);
+		if(f[a[y]] && check(now[f[a[y]]])) mp.insert(now[f[a[y]]]);
+		else mp.erase(now[f[a[y]]]);
+		for(auto j : p[a[x]])
+		{
+			if(j == f[a[x]]) continue;
+			if(check(now[j])) mp.insert(now[j]);
+			else mp.erase(now[j]);
+		}
+		for(auto j : p[a[y]])
+		{
+			if(j == f[a[y]]) continue;
+			if(check(now[j])) mp.insert(now[j]);
+			else mp.erase(now[j]);
+		}
+		if(mp.size() > 0) cout << "NO" << endl;
+		else cout << "YES" << endl;
+ 
+	}
+}
+signed main()
+{
+    IOS
+	int t;
+	t = 1;
+	cin >> t;
+	while(t -- )
+	{
+		solve();
+	}
+	return 0;
+}
